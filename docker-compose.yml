@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+
+  backend:
+    build: ./backend:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+
+  frontend:
+    build: ./rebounder-chain-frontend:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+
+networks:
+  my-network:
